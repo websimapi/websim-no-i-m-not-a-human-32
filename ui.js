@@ -21,13 +21,13 @@ export function initButtonHovers(){
   const buttons=document.querySelectorAll('.menu button, .overlay-btn, .credits-btn'); let staticLoopSound=null; let initialSoundSource=null; let touchInProgress=false;
   const stopAll=()=>{ if(initialSoundSource){ try{ initialSoundSource.stop(); }catch{} initialSoundSource=null; }
     if(staticLoopSound){ const { source, gainNode } = staticLoopSound; const fadeOut=0.2; gainNode.gain.cancelScheduledValues(audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime+fadeOut); setTimeout(()=>{ try{ source.stop(); }catch{} }, fadeOut*1000); staticLoopSound=null; } };
-  const { uiHoverBuffer, tvStaticLoopBuffer } = getUIBuffers();
-  const ensureUnlock = () => {
-    const once = async () => { await unlockAudio(); window.removeEventListener('pointerdown', once); window.removeEventListener('keydown', once); };
-    window.addEventListener('pointerdown', once, { once:true, passive:true }); window.addEventListener('keydown', once, { once:true });
+  const handleEnter=(btn)=>{ 
+    if(btn.disabled) return; 
+    const { uiHoverBuffer, tvStaticLoopBuffer } = getUIBuffers();
+    stopAll(); btn.classList.add('static-bg-active');
+    const h=playSound(uiHoverBuffer, 0.55); if(h) initialSoundSource=h.source;
+    staticLoopSound=playSound(tvStaticLoopBuffer, 0.18, null, true, 0.5);
   };
-  ensureUnlock();
-  const handleEnter=(btn)=>{ if(btn.disabled) return; stopAll(); btn.classList.add('static-bg-active'); const h=playSound(uiHoverBuffer, 0.6); if(h) initialSoundSource=h.source; staticLoopSound=playSound(tvStaticLoopBuffer, 0.2, null, true, 0.4); };
   const handleLeave=(btn)=>{ stopAll(); btn.classList.remove('static-bg-active'); };
   buttons.forEach(button=>{
     button.addEventListener('mouseenter',(e)=>{ if(touchInProgress) return; handleEnter(e.currentTarget); });
